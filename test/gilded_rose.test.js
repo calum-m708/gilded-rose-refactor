@@ -125,4 +125,17 @@ describe('Gilded Rose', () => {
       );
     });
   });
+
+  it('Conjured Items should degrade in quality twice as fast', () => {
+    // Given: that I have a Shop with an Item 'Conjured Greatsword of Rending' of SellIn 5, Quality 5
+    const gildedRose = new Shop([
+      new Item('Conjured Greatsword of Rending', 5, 5)
+    ]);
+    // When: the update occurs at the end of the day
+    const items = gildedRose.updateQuality();
+    // Then: I expect the SellIn to reduce by 1, and and the Quality to reduce by 2
+    expect(items[0]).toMatchObject(
+      new Item('Conjured Greatsword of Rending', 4, 3)
+    );
+  });
 });

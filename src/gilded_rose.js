@@ -44,10 +44,19 @@ class BackstagePass extends Item {
     }
   }
 }
+
+class ConjuredItem extends Item {
+  updateItem() {
+    this.sellIn -= 1;
+    this.quality = this.quality - 2;
+  }
+}
 class Shop {
   constructor(items = []) {
     this.items = items.map((item) => {
       switch (item.name) {
+        case 'Conjured Greatsword of Rending':
+          return new ConjuredItem(item.name, item.sellIn, item.quality);
         case 'Backstage passes to a TAFKAL80ETC concert':
           return new BackstagePass(item.name, item.sellIn, item.quality);
         case 'Sulfuras, Hand of Ragnaros':
