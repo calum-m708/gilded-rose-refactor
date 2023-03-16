@@ -7,32 +7,35 @@ class Item {
 }
 
 class GenericItem extends Item {
-  updateItem() {
+  reduceSellIn() {
     this.sellIn -= 1;
+  }
+  updateQuality() {
     this.quality = Math.max(
       this.sellIn > 0 ? this.quality - 1 : this.quality - 2,
       0
     );
   }
+  updateItem() {
+    this.reduceSellIn();
+    this.updateQuality();
+  }
 }
 
-class MaturingItem extends Item {
-  updateItem() {
-    this.sellIn -= 1;
+class MaturingItem extends GenericItem {
+  updateQuality() {
     this.quality = Math.min(this.quality + 1, 50);
   }
 }
 
-class LegendaryItem extends Item {
-  updateItem() {
-    this.sellIn = this.sellIn;
+class LegendaryItem extends GenericItem {
+  updateQuality() {
     this.quality = this.quality;
   }
 }
 
-class BackstagePass extends Item {
-  updateItem() {
-    this.sellIn -= 1;
+class BackstagePass extends GenericItem {
+  updateQuality() {
     if (this.sellIn < 0) {
       this.quality = 0;
     } else if (this.sellIn <= 5) {
@@ -45,10 +48,12 @@ class BackstagePass extends Item {
   }
 }
 
-class ConjuredItem extends Item {
-  updateItem() {
-    this.sellIn -= 1;
-    this.quality = this.quality - 2;
+class ConjuredItem extends GenericItem {
+  updateQuality() {
+    this.quality = Math.max(
+      this.sellIn > 0 ? this.quality - 2 : this.quality - 4,
+      0
+    );
   }
 }
 class Shop {

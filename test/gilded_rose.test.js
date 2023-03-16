@@ -1,7 +1,7 @@
 const { Shop, Item } = require('../src/gilded_rose');
 
 describe('Gilded Rose', () => {
-  it('should lower both the SellIn and Quality at the end of each day', () => {
+  it('should lower both the SellIn and Quality of items at the end of each day', () => {
     // Given: that I have a Shop with an Item of SellIn 2, Quality 5
     const gildedRose = new Shop([new Item('foo', 2, 5)]);
 
@@ -12,7 +12,7 @@ describe('Gilded Rose', () => {
     expect(items[0]).toMatchObject(new Item('foo', 1, 4));
   });
 
-  it('should lower the Quality twice as fast once the Sell By date has passed', () => {
+  it('should lower the Quality of items twice as fast once the Sell By date has passed', () => {
     // Given: that I have a Shop with an Item of SellIn 0, Quality 5
     const gildedRose = new Shop([new Item('foo', 0, 5)]);
 
@@ -54,16 +54,18 @@ describe('Gilded Rose', () => {
     expect(items[0]).toMatchObject(new Item('Aged Brie', 4, 50));
   });
 
-  it('The Quality and SellIn of Sulfuras should never reduce', () => {
+  it('The Quality of Sulfuras should never reduce', () => {
     // Given: that I have a Shop with an Item 'Sulfuras, Hand of Ragnaros' of SellIn 5, Quality 5
-    const gildedRose = new Shop([new Item('Sulfuras, Hand of Ragnaros', 5, 5)]);
+    const gildedRose = new Shop([
+      new Item('Sulfuras, Hand of Ragnaros', 5, 80)
+    ]);
 
     // When: the update occurs at the end of the day
     const items = gildedRose.updateQuality();
 
-    // Then: I expect the SellIn and Quality to remain the same
+    // Then: I expect the SellIn to reduce by 1, and Quality to remain the same
     expect(items[0]).toMatchObject(
-      new Item('Sulfuras, Hand of Ragnaros', 5, 5)
+      new Item('Sulfuras, Hand of Ragnaros', 4, 80)
     );
   });
 
@@ -125,17 +127,42 @@ describe('Gilded Rose', () => {
       );
     });
   });
-
-  it('Conjured Items should degrade in quality twice as fast', () => {
-    // Given: that I have a Shop with an Item 'Conjured Greatsword of Rending' of SellIn 5, Quality 5
-    const gildedRose = new Shop([
-      new Item('Conjured Greatsword of Rending', 5, 5)
-    ]);
-    // When: the update occurs at the end of the day
-    const items = gildedRose.updateQuality();
-    // Then: I expect the SellIn to reduce by 1, and and the Quality to reduce by 2
-    expect(items[0]).toMatchObject(
-      new Item('Conjured Greatsword of Rending', 4, 3)
-    );
+  describe('Conjured Items', () => {
+    it('should degrade in quality twice as fast as regular items', () => {
+      // Given: that I have a Shop with an Item 'Conjured Greatsword of Rending' of SellIn 5, Quality 5
+      const gildedRose = new Shop([
+        new Item('Conjured Greatsword of Rending', 5, 5)
+      ]);
+      // When: the update occurs at the end of the day
+      const items = gildedRose.updateQuality();
+      // Then: I expect the SellIn to reduce by 1, and and the Quality to reduce by 2
+      expect(items[0]).toMatchObject(
+        new Item('Conjured Greatsword of Rending', 4, 3)
+      );
+    });
+    it('should degrade in quality by 4 points when the SellIn reaches 0', () => {
+      // Given: that I have a Shop with an Item 'Conjured Greatsword of Rending' of SellIn 0, Quality 5
+      const gildedRose = new Shop([
+        new Item('Conjured Greatsword of Rending', 0, 5)
+      ]);
+      // When: the update occurs at the end of the day
+      const items = gildedRose.updateQuality();
+      // Then: I expect the SellIn to reduce by 1, and the Quality to reduce by 4
+      expect(items[0]).toMatchObject(
+        new Item('Conjured Greatsword of Rending', -1, 1)
+      );
+    });
+    it('should not reduce Quality past 0', () => {
+      // Given: that I have a Shop with an Item 'Conjured Greatsword of Rending' of SellIn 5, Quality 1
+      const gildedRose = new Shop([
+        new Item('Conjured Greatsword of Rending', 5, 1)
+      ]);
+      // When: the update occurs at the end of the day
+      const items = gildedRose.updateQuality();
+      // Then: I expect the SellIn to reduce by 1, and the Quality to be limited at 0
+      expect(items[0]).toMatchObject(
+        new Item('Conjured Greatsword of Rending', 4, 0)
+      );
+    });
   });
 });
